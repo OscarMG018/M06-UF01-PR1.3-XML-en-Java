@@ -21,6 +21,32 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Arrays;
+
+/*
+
+Requisits:
+Cada curs té:
+    Un codi identificatiu.
+    Un tutor.
+    Una llista d'alumnes.
+    Almenys un mòdul.
+Cada mòdul consta de:
+    Un codi identificatiu.
+    Un títol.
+    Almenys un professor.
+    Diverses unitats formatives.
+
+Funcions del programa:
+    Llistar ids de cursos, tutors i total d’alumnes.
+    Mostrar ids i títols dels mòduls a partir d'un id de curs.
+    Llistar alumnes d’un curs.
+    Afegir un alumne a un curs.
+    Eliminar un alumne d'un curs.
+
+Nota: Cal utilitzar XPath per navegar per l'arbre XML.
+ */
+
 
 /**
  * Classe principal que permet gestionar un fitxer XML de cursos amb opcions per llistar, afegir i eliminar alumnes, 
@@ -138,8 +164,26 @@ public class PR132Main {
      * @return Llista amb la informació dels cursos (ID, tutor, nombre d'alumnes).
      */
     public List<List<String>> llistarCursos() {
-        // *************** CODI PRÀCTICA **********************/
-        return null; // Substitueix pel teu
+        Document doc = carregarDocumentXML(xmlFilePath);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/cursos/curs";
+        NodeList nodeList = null;
+        try{
+            nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        List<List<String>> cursos = new ArrayList<>();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            Element element = (Element) node;
+            String id = element.getAttribute("id");
+            String tutor = element.getElementsByTagName("tutor").item(0).getTextContent();
+            NodeList alumnes = element.getElementsByTagName("alumne");
+            int totalAlumnes = alumnes.getLength();
+            cursos.add(Arrays.asList(id, tutor, String.valueOf(totalAlumnes)));
+        }
+        return cursos;
     }
 
     /**
@@ -159,8 +203,24 @@ public class PR132Main {
      * @return Llista amb la informació dels mòduls (ID, títol).
      */
     public List<List<String>> mostrarModuls(String idCurs) {
-        // *************** CODI PRÀCTICA **********************/
-        return null; // Substitueix pel teu
+        Document doc = carregarDocumentXML(xmlFilePath);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/cursos/curs[@id='" + idCurs + "']/moduls/modul";
+        NodeList nodeList = null;
+        try{
+            nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        List<List<String>> moduls = new ArrayList<>();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            Element element = (Element) node;
+            String id = element.getAttribute("id");
+            String titol = element.getElementsByTagName("titol").item(0).getTextContent();
+            moduls.add(Arrays.asList(id, titol));
+        }
+        return moduls;
     }
 
     /**
@@ -180,8 +240,21 @@ public class PR132Main {
      * @return Llista amb els noms dels alumnes.
      */
     public List<String> llistarAlumnes(String idCurs) {
-        // *************** CODI PRÀCTICA **********************/
-        return null; // Substitueix pel teu
+        Document doc = carregarDocumentXML(xmlFilePath);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/cursos/curs[@id='" + idCurs + "']/alumnes/alumne";
+        NodeList nodeList = null;
+        try{
+            nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        List<String> alumnes = new ArrayList<>();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            alumnes.add(node.getTextContent());
+        }
+        return alumnes;
     }
 
     /**
@@ -201,7 +274,21 @@ public class PR132Main {
      * @param nomAlumne Nom de l'alumne a afegir.
      */
     public void afegirAlumne(String idCurs, String nomAlumne) {
-        // *************** CODI PRÀCTICA **********************/
+        Document doc = carregarDocumentXML(xmlFilePath);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/cursos/curs[@id='" + idCurs + "']/alumnes";
+        NodeList nodeList = null;
+        try{
+            nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        Node node = nodeList.item(0);
+        Element element = (Element) node;
+        Element nouAlumne = doc.createElement("alumne");
+        nouAlumne.setTextContent(nomAlumne);
+        element.appendChild(nouAlumne);
+        guardarDocumentXML(doc);
     }
 
     /**
@@ -211,7 +298,20 @@ public class PR132Main {
      * @param nomAlumne Nom de l'alumne a eliminar.
      */
     public void eliminarAlumne(String idCurs, String nomAlumne) {
-        // *************** CODI PRÀCTICA **********************/
+        Document doc = carregarDocumentXML(xmlFilePath);
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        String expression = "/cursos/curs[@id='" + idCurs + "']/alumnes/alumne[text()='" + nomAlumne + "']";
+        NodeList nodeList = null;
+        try{
+            nodeList = (NodeList) xPath.compile(expression).evaluate(doc, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        Node node = nodeList.item(0);
+        if (node != null) {
+            node.getParentNode().removeChild(node);
+        }
+        guardarDocumentXML(doc);
     }
 
     /**

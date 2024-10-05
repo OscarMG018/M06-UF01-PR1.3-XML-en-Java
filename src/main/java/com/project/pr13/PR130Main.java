@@ -11,6 +11,24 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.InputStream;
 
+/*
+
+El programa ha de llegir el contingut del fitxer persones.xml
+Mostra les dades llegides en una sortida per pantalla amb format de columnes alineades.
+Amb "columnes alineades" ens referim a que les dades de cada camp (nom, cognom, edat, ciutat)
+han d'aparèixer sota la seva respectiva capçalera en una presentació organitzada i fàcil de llegir.
+Sortida esperada
+Nom      Cognom        Edat  Ciutat
+-------- -------------- ----- ---------
+Maria    López          36    Barcelona
+Gustavo  Catadasús      15    London   
+Irene    Rocheford      45    Tokio    
+Armengol Pastor         72    Abidjan  
+
+ */
+
+
+
 /**
  * Classe principal que gestiona la lectura i el processament de fitxers XML per obtenir dades de persones.
  * 
@@ -65,7 +83,15 @@ public class PR130Main {
      * @return Document XML carregat o null si hi ha hagut un error en la lectura.
      */
     public static Document parseXML(File inputFile) {
-        // *************** CODI PRÀCTICA **********************/
-        return null; // Substitueix pel teu        
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputFile);
+            doc.getDocumentElement().normalize();
+            return doc;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
